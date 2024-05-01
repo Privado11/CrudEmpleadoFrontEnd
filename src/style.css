@@ -1,0 +1,33 @@
+.button-container {
+  align-items: center;
+  height: 60px;
+  padding-left: 10px;
+  border-bottom: 1px solid #2e303e;
+  color: #e1ecff;
+  display: flex;
+}
+
+.button-container button {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  height: 55px;
+  width: 55px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0 16px;
+  color: #e1ecff;
+  transition: background 0.3s;
+}
+
+.button-container button:hover {
+  background: #2e303e;
+}
+
+.button-container button::before {
+  background: #e1ecff;
+}

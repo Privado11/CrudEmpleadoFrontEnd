@@ -1,37 +1,53 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { ListarDepartamentos } from "../departamentos/ListarDepartamentos";
+import { ListarCargos } from "../cargos/ListarCargos";
 
 function EditarEmpleado() {
   let navegacion = useNavigate();
-  const urlBase = "http://localhost:8080/api/v1/empleados";
-
+  const { getEmpleadoById, putEmpleado } = useRecursosHumanos();
+  const [departamento, setDepartamento] = useState();
+  const [empleado, setEmpleado] = useState();
   const { id } = useParams();
 
-  const [empleado, setEmpleado] = useState({
-    nombre: "",
-    departamento: "",
-    sueldo: "",
-  });
-
-  const { nombre, departamento, sueldo } = empleado;
+  const cargarEmpleado = async () => {
+    const empleado = await getEmpleadoById(id);
+    (empleado.id = null), setEmpleado(empleado);
+  };
 
   useEffect(() => {
     cargarEmpleado();
+    onSelectDepartamentoEmpleado();
   }, []);
 
-  const cargarEmpleado = async () => {
-    const resultado = await axios.get(`${urlBase}/${id}`);
-    setEmpleado(resultado.data);
-  };
+  const {
+    codigo,
+    nombre,
+    apellido,
+    direccion,
+    telefono,
+    email,
+    cargo,
+    sueldo,
+  } = empleado || {};
 
   const onInputChange = (e) => {
     setEmpleado({ ...empleado, [e.target.name]: e.target.value });
   };
 
+  const onSelectDepartamentoEmpleado = (selectedDepartamento) => {
+    setDepartamento(selectedDepartamento);
+  };
+
+  const onSelectCargoEmpleado = (selectedCargo) => {
+    setEmpleado({ ...empleado, cargo: selectedCargo });
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    await axios.put(`${urlBase}/${id}`, empleado);
+    await putEmpleado(id, empleado);
     navegacion("/");
   };
 
@@ -41,6 +57,20 @@ function EditarEmpleado() {
         <h3>Editar Empleado</h3>
       </div>
       <form onSubmit={(e) => onSubmit(e)}>
+        <div className="mb-3">
+          <label htmlFor="codigo" className="form-label">
+            Codigo Empleado
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="codigo"
+            name="codigo"
+            required={true}
+            value={codigo}
+            onChange={(e) => onInputChange(e)}
+          />
+        </div>
         <div className="mb-3">
           <label htmlFor="nombre" className="form-label">
             Nombre Empleado
@@ -56,17 +86,88 @@ function EditarEmpleado() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="departamento" className="form-label">
-            Departamento Empleado
+          <label htmlFor="apellido" className="form-label">
+            Apellido Empleado
           </label>
           <input
             type="text"
             className="form-control"
-            id="departamento"
-            name="departamento"
+            id="apellido"
+            name="apellido"
             required={true}
-            value={departamento}
+            value={apellido}
             onChange={(e) => onInputChange(e)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="direccion" className="form-label">
+            Dirección Empleado
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="direccion"
+            name="direccion"
+            value={direccion}
+            onChange={(e) => onInputChange(e)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="telefono" className="form-label">
+            Teléfono Empleado
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="telefono"
+            name="telefono"
+            value={telefono}
+            onChange={(e) => onInputChange(e)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">
+            Email Empleado
+          </label>
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            name="email"
+            required={true}
+            value={email}
+            onChange={(e) => onInputChange(e)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="departamento" className="form-label">
+            Departamento Empleado
+          </label>
+          <ListarDepartamentos
+            value={
+              cargo && cargo.departamento
+                ? departamento
+                  ? departamento.nombre
+                  : cargo.departamento.nombre
+                : ""
+            }
+            onSelectDepartamentoEmpleado={onSelectDepartamentoEmpleado}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="cargo" className="form-label">
+            Cargo Empleado
+          </label>
+          <ListarCargos
+            value={cargo ? cargo.nombre : ""}
+            departamento={
+              cargo && cargo.departamento
+                ? departamento
+                  ? departamento
+                  : cargo.departamento
+                : ""
+            }
+            onSelectCargoEmpleado={onSelectCargoEmpleado}
           />
         </div>
         <div className="mb-3">
@@ -89,7 +190,7 @@ function EditarEmpleado() {
             Guardar Cambios
           </button>
           <a href="/" className="btn btn-danger btn-sm">
-            Regresar
+            Cancelar
           </a>
         </div>
       </form>
@@ -97,4 +198,4 @@ function EditarEmpleado() {
   );
 }
 
-export default EditarEmpleado;
+export { EditarEmpleado };

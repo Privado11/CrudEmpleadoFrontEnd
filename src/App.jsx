@@ -1,22 +1,37 @@
-import { useState } from "react";
-import ListadoEmpleados from "./empleados/ListadoEmpleados";
-import Navegacion from "./plantilla/Navegacion";
+import { ListadoEmpleados } from "./empleados/ListadoEmpleados";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AgregarEmpleado from "./empleados/AgregarEmpleado";
-import EditarEmpleado from "./empleados/EditarEmpleado";
+import { AgregarEmpleado } from "./empleados/AgregarEmpleado";
+import { EditarEmpleado } from "./empleados/EditarEmpleado";
+import { RecursosHumanosProvider } from "./context/RecursosHumanosContext";
+import { Sidebar } from "./plantilla/Sidebar";
+import { useState } from "react";
+import { IoMdMenu } from "react-icons/io";
+import ".//style.css";
 
 function App() {
+  const [isSidebarVisible, setSidebarVisibility] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarVisibility(!isSidebarVisible);
+  };
+
   return (
-    <>
+    <RecursosHumanosProvider>
       <BrowserRouter>
-        <Navegacion />
+        <div className="button-container">
+          <button onClick={toggleSidebar}>
+            <IoMdMenu />
+          </button>
+        </div>
+
+        {isSidebarVisible && <Sidebar toggleSidebar={toggleSidebar} />}
         <Routes>
           <Route path="/" element={<ListadoEmpleados />} />
-          <Route path="/agregar" element={<AgregarEmpleado />} />
+          <Route path="/create/employee" element={<AgregarEmpleado />} />
           <Route path="/editar/:id" element={<EditarEmpleado />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </RecursosHumanosProvider>
   );
 }
 

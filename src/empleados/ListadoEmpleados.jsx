@@ -1,51 +1,86 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { Link } from "react-router-dom";
 import { MdDeleteForever, MdEditDocument } from "react-icons/md";
+import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { FiltrarEmpleados } from "./FiltrarEmpleados";
 
 function ListadoEmpleados() {
-  const urlBase = "http://localhost:8080/api/v1/empleados";
-  const [empleados, setEmpleados] = useState([]);
-
-  useEffect(() => {
-    cargarEmpleados();
-  }, []);
-
-  const cargarEmpleados = async () => {
-    const resultado = await axios.get(urlBase);
-    console.log("Resultados de la consulta:");
-    console.log(resultado.data);
-    setEmpleados(resultado.data);
-  };
+  const { empleados, deleteEmpleado, getEmpleados, filterEmpleado } =
+    useRecursosHumanos();
+  const [listEmpleados, setListEmpleados] = useState(empleados);
+  const [departamento, setDepartamento] = useState();
+  const [cargo, setCargo] = useState();
 
   const EliminarEmpleado = async (id) => {
-    await axios.delete(`${urlBase}/${id}`);
-    cargarEmpleados();
+    await deleteEmpleado(id);
+    getEmpleados();
   };
+
+  const onSelectDepartamentoEmpleado = (selectedDepartamento) => {
+    setDepartamento(selectedDepartamento);
+  };
+
+  const onSelectCargoEmpleado = (selectedCargo) => {
+    setCargo(selectedCargo);
+  };
+
+  const filtrarEmpleados = async () => {
+    if (departamento) {
+      filterEmpleado(
+        "nombreDepartamento",
+        departamento ? departamento.nombre : ""
+      );
+    } else {
+      getEmpleados();
+    }
+  };
+
+  useEffect(() => {
+    setListEmpleados(empleados);
+  }, [empleados]);
+
+  useEffect(() => {
+    console.log(departamento);
+  }, [departamento]);
+
+  useEffect(() => {
+    filtrarEmpleados();
+  }, [departamento]);
 
   return (
     <div style={{ margin: "30px" }}>
       <div className="container text-center">
         <h3>Sistema de Recursos Humanos</h3>
       </div>
-
-      <table className="table table-striped table-hover align-middle">
+      <FiltrarEmpleados
+        onSelectCargoEmpleado={onSelectCargoEmpleado}
+        onSelectDepartamentoEmpleado={onSelectDepartamentoEmpleado}
+      />
+      <table className="table table-striped table-hover align-middle table-bordered">
         <thead className="table-dark">
           <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Empleado</th>
+            <th scope="col">Código</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Dirección</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Email</th>
+            <th scope="col">Cargo</th>
             <th scope="col">Departamento</th>
             <th scope="col">Sueldo</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {empleados.map((empleado, indice) => (
+          {listEmpleados.map((empleado, indice) => (
             <tr key={indice}>
-              <th scope="row">{empleado.idEmpleado}</th>
-              <td>{empleado.nombre}</td>
-              <td>{empleado.departamento}</td>
+              <th scope="row">{empleado.codigo}</th>
+              <td>{empleado.nombre + " " + empleado.apellido}</td>
+              <td>{empleado.direccion}</td>
+              <td>{empleado.telefono}</td>
+              <td>{empleado.email}</td>
+              <td>{empleado.cargo.nombre}</td>
+              <td>{empleado.cargo.departamento.nombre}</td>
               <td>
                 <NumericFormat
                   value={empleado.sueldo}
@@ -58,7 +93,7 @@ function ListadoEmpleados() {
               </td>
               <td className="text-center">
                 <div>
-                  <Link to={`/editar/${empleado.idEmpleado}`} title="Editar">
+                  <Link to={`/editar/${empleado.id}`} title="Editar">
                     <MdEditDocument
                       style={{
                         fontSize: "1.5rem",
@@ -74,7 +109,7 @@ function ListadoEmpleados() {
                       color: "red",
                       cursor: "pointer",
                     }}
-                    onClick={() => EliminarEmpleado(empleado.idEmpleado)}
+                    onClick={() => EliminarEmpleado(empleado.id)}
                   />
                 </div>
               </td>
@@ -86,4 +121,4 @@ function ListadoEmpleados() {
   );
 }
 
-export default ListadoEmpleados;
+export { ListadoEmpleados };
