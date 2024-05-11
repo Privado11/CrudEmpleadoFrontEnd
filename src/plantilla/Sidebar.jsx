@@ -1,18 +1,25 @@
 import React, { FC, useRef, useState } from "react";
 import { MdAddBox, MdAccountCircle, MdExpandMore } from "react-icons/md";
-import { IoMdHome, IoMdSettings, IoMdClose } from "react-icons/io";
+import {
+  IoIosAddCircleOutline,
+  IoMdHome,
+  IoMdSettings,
+  IoMdClose,
+} from "react-icons/io";
+import { IoHomeOutline, IoSettingsOutline } from "react-icons/io5";
+import { VscAccount } from "react-icons/vsc";
+import { useNavigate } from "react-router-dom";
 import ".//style.css";
-import { Link } from "react-router-dom";
 
 const menuItems = [
   {
     name: "Home",
-    icon: <IoMdHome />,
-    linkTo: "/home",
+    icon: <IoHomeOutline />,
+    linkTo: "/",
   },
   {
     name: "Create",
-    icon: <MdAddBox />,
+    icon: <IoIosAddCircleOutline />,
     items: [
       { name: "Employee", linkTo: "/create/employee" },
       { name: "Position", linkTo: "/create/position" },
@@ -21,7 +28,7 @@ const menuItems = [
   },
   {
     name: "Settings",
-    icon: <IoMdSettings />,
+    icon: <IoSettingsOutline />,
     items: [
       { name: "Display" },
       { name: "Display" },
@@ -32,7 +39,7 @@ const menuItems = [
 
   {
     name: "Account",
-    icon: <MdAccountCircle />,
+    icon: <VscAccount />,
     items: [{ name: "Edit" }, { name: "Logout" }],
   },
 ];
@@ -46,15 +53,16 @@ const NavHeader = ({ toggleSidebar }) => (
     <button type="button" onClick={toggleSidebar}>
       <Icon icon={<IoMdClose />} />
     </button>
-    <span>Admin</span>
+    <span></span>
   </header>
 );
 
-const NavButton = ({ onClick, name, icon, isActive, hasSubNav }) => (
+const NavButton = ({ onClick, name, icon, isActive, hasSubNav, linkTo }) => (
   <button
     type="button"
     onClick={() => {
-      onClick && onClick(name);
+      const argument = linkTo ? linkTo : name;
+      onClick && onClick(argument);
     }}
     className={isActive ? "active" : ""}
   >
@@ -64,7 +72,7 @@ const NavButton = ({ onClick, name, icon, isActive, hasSubNav }) => (
   </button>
 );
 
-const SubMenu = ({ item, activeItem, handleClick }) => {
+const SubMenu = ({ item, activeItem, handleClickLink }) => {
   const navRef = useRef(null);
 
   const isSubNavOpen = (item, items) =>
@@ -72,7 +80,9 @@ const SubMenu = ({ item, activeItem, handleClick }) => {
 
   return (
     <div
-      className={`sub-nav ${isSubNavOpen(item.name, item.items) ? "open" : ""}`}
+      className={`sub-nav ${
+        isSubNavOpen(item.name, item.items) ? "open" : "container-menu"
+      }`}
       style={{
         height: !isSubNavOpen(item.name, item.items)
           ? 0
@@ -85,6 +95,8 @@ const SubMenu = ({ item, activeItem, handleClick }) => {
             key={index}
             name={subItem.name}
             isActive={activeItem === subItem.name}
+            linkTo={subItem.linkTo}
+            onClick={handleClickLink}
           />
         ))}
       </div>
@@ -94,9 +106,15 @@ const SubMenu = ({ item, activeItem, handleClick }) => {
 
 function Sidebar({ toggleSidebar }) {
   const [activeItem, setActiveItem] = useState("");
+  const navigate = useNavigate();
 
   const handleClick = (item) => {
     setActiveItem(item !== activeItem ? item : "");
+  };
+
+  const handleClickLink = (link) => {
+    navigate(link);
+    //toggleSidebar();
   };
 
   return (
@@ -106,11 +124,12 @@ function Sidebar({ toggleSidebar }) {
         <div key={index}>
           {!item.items && (
             <NavButton
-              onClick={handleClick}
+              onClick={item.linkTo ? handleClickLink : handleClick}
               name={item.name}
               icon={item.icon}
               isActive={activeItem === item.name}
               hasSubNav={!!item.items}
+              linkTo={item.linkTo}
             />
           )}
           {item.items && (
@@ -124,7 +143,7 @@ function Sidebar({ toggleSidebar }) {
               />
               <SubMenu
                 activeItem={activeItem}
-                handleClick={handleClick}
+                handleClickLink={handleClickLink}
                 item={item}
               />
             </>

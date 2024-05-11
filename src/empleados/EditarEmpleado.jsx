@@ -14,7 +14,7 @@ function EditarEmpleado() {
 
   const cargarEmpleado = async () => {
     const empleado = await getEmpleadoById(id);
-    (empleado.id = null), setEmpleado(empleado);
+    setEmpleado(empleado[0]);
   };
 
   useEffect(() => {
@@ -25,11 +25,11 @@ function EditarEmpleado() {
   const {
     codigo,
     nombre,
-    apellido,
     direccion,
     telefono,
     email,
-    cargo,
+    cargo_id,
+    cargos,
     sueldo,
   } = empleado || {};
 
@@ -42,7 +42,7 @@ function EditarEmpleado() {
   };
 
   const onSelectCargoEmpleado = (selectedCargo) => {
-    setEmpleado({ ...empleado, cargo: selectedCargo });
+    setEmpleado({ ...empleado, cargo_id: selectedCargo.id });
   };
 
   const onSubmit = async (e) => {
@@ -82,20 +82,6 @@ function EditarEmpleado() {
             name="nombre"
             required={true}
             value={nombre}
-            onChange={(e) => onInputChange(e)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="apellido" className="form-label">
-            Apellido Empleado
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="apellido"
-            name="apellido"
-            required={true}
-            value={apellido}
             onChange={(e) => onInputChange(e)}
           />
         </div>
@@ -145,10 +131,10 @@ function EditarEmpleado() {
           </label>
           <ListarDepartamentos
             value={
-              cargo && cargo.departamento
+              cargos && cargos.departamentos
                 ? departamento
                   ? departamento.nombre
-                  : cargo.departamento.nombre
+                  : cargos.departamentos.nombre
                 : ""
             }
             onSelectDepartamentoEmpleado={onSelectDepartamentoEmpleado}
@@ -159,12 +145,12 @@ function EditarEmpleado() {
             Cargo Empleado
           </label>
           <ListarCargos
-            value={cargo ? cargo.nombre : ""}
+            value={cargos ? cargos.nombre : ""}
             departamento={
-              cargo && cargo.departamento
+              cargos && cargos.departamentos
                 ? departamento
                   ? departamento
-                  : cargo.departamento
+                  : cargos.departamento
                 : ""
             }
             onSelectCargoEmpleado={onSelectCargoEmpleado}

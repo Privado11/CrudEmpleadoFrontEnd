@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { supabase } from "./supabase";
 
 function apiRecursosHumanos() {
   const urlBase = "http://localhost:8080/api/v1";
@@ -14,9 +15,23 @@ function apiRecursosHumanos() {
     getDepartamentos();
   }, []);
 
+  const getDataE = async (endPoint, setters) => {
+    try {
+      const datosObt = await supabase.from(`${endPoint}`).select(`
+      *,
+      cargos(*, departamentos(*))
+    `);
+      //const datosObt = await axios.get(`${urlBase}/${endPoint}`);
+      setters(datosObt.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getData = async (endPoint, setters) => {
     try {
-      const datosObt = await axios.get(`${urlBase}/${endPoint}`);
+      const datosObt = await supabase.from(`${endPoint}`).select();
+      //const datosObt = await axios.get(`${urlBase}/${endPoint}`);
       setters(datosObt.data);
     } catch (error) {
       console.error(error);
@@ -25,8 +40,16 @@ function apiRecursosHumanos() {
 
   const getDataId = async (endPoint, id) => {
     try {
-      const Empleado = await axios.get(`${urlBase}/${endPoint}/${id}`);
-      return Empleado.data;
+      const empleado = await supabase
+        .from(endPoint)
+        .select(
+          `
+        *,
+        cargos(*, departamentos(*))
+      `
+        )
+        .eq("id", `${id}`);
+      return empleado.data;
     } catch (error) {
       console.error(error);
       return null;
@@ -35,34 +58,67 @@ function apiRecursosHumanos() {
 
   const postData = async (endPoint, data) => {
     try {
-      await axios.post(`${urlBase}/${endPoint}`, data);
+      const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
+        data;
+
+      await supabase.from(endPoint).insert([
+        {
+          codigo: codigo,
+          nombre: nombre,
+          direccion: direccion,
+          telefono: telefono,
+          email: email,
+          cargo_id: cargo_id,
+          sueldo: sueldo,
+        },
+      ]);
     } catch (error) {
-      console.error(error);
+      console.error("Error al insertar datos:", error.message);
     }
   };
 
   const putData = async (endPoint, id, data) => {
     try {
-      await axios.put(`${urlBase}/${endPoint}/${id}`, data);
+      const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
+        data;
+
+      await supabase
+        .from(endPoint)
+        .update([
+          {
+            codigo: codigo,
+            nombre: nombre,
+            direccion: direccion,
+            telefono: telefono,
+            email: email,
+            cargo_id: cargo_id,
+            sueldo: sueldo,
+          },
+        ])
+        .eq("id", id)
+        .select();
+
+      //await axios.put(`${urlBase}/${endPoint}/${id}`, data);
     } catch (error) {
-      console.error(error);
+      console.error("Error al insertar datos:", error.message);
     }
   };
 
   const deleteData = async (endPoint, id) => {
     try {
-      await axios.delete(`${urlBase}/${endPoint}/${id}`);
+      await supabase.from(endPoint).delete().eq("id", id);
+      //await axios.delete(`${urlBase}/${endPoint}/${id}`);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const filterData = async (endPoint, nameData, data, setters) => {
+  const filterData = async (endPoint, filter, setters) => {
     try {
-      const datosObt = await axios.get(
-        `${urlBase}/${endPoint}/${nameData}`,
-        data
-      );
+      const datosObt = await supabase
+        .from(`${endPoint}`)
+        .select()
+        .like("nombre", `%${filter}%`);
       setters(datosObt.data);
     } catch (error) {
       console.error(error);
@@ -70,13 +126,13 @@ function apiRecursosHumanos() {
   };
 
   //Empleados
-  const getEmpleados = () => getData("empleados", setEmpleados);
+  const getEmpleados = () => getDataE("empleados", setEmpleados);
   const saveEmpleado = (empleado) => postData("empleados", empleado);
   const putEmpleado = (id, empleado) => putData("empleados", id, empleado);
   const deleteEmpleado = (id) => deleteData("empleados", id);
   const getEmpleadoById = (id) => getDataId("empleados", id);
-  const filterEmpleado = (nameData, data) =>
-    filterData("empleados/departamento", nameData, data, setEmpleados);
+  const filterEmpleado = (filter) =>
+    filterData("empleados", filter, setEmpleados);
 
   //Cargos
   const getCargos = () => getData("cargos", setCargos);

@@ -14,7 +14,7 @@ function ListarCargos({ value, departamento, onSelectCargoEmpleado }) {
   useEffect(() => {
     if (cargos && departamento) {
       setCargosFiltrados(
-        cargos.filter((cargo) => cargo.departamento.id === departamento.id)
+        cargos.filter((cargo) => cargo.departamento_id === departamento.id)
       );
     } else {
       setCargosFiltrados(cargos);

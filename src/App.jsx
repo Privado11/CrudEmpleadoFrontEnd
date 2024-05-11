@@ -9,22 +9,10 @@ import { IoMdMenu } from "react-icons/io";
 import ".//style.css";
 
 function App() {
-  const [isSidebarVisible, setSidebarVisibility] = useState(false);
-
-  const toggleSidebar = () => {
-    setSidebarVisibility(!isSidebarVisible);
-  };
-
   return (
     <RecursosHumanosProvider>
       <BrowserRouter>
-        <div className="button-container">
-          <button onClick={toggleSidebar}>
-            <IoMdMenu />
-          </button>
-        </div>
-
-        {isSidebarVisible && <Sidebar toggleSidebar={toggleSidebar} />}
+        <Sidebar />
         <Routes>
           <Route path="/" element={<ListadoEmpleados />} />
           <Route path="/create/employee" element={<AgregarEmpleado />} />

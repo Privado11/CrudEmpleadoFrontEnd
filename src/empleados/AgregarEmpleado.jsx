@@ -1,9 +1,9 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListarCargos } from "../cargos/ListarCargos";
 import { ListarDepartamentos } from "../departamentos/ListarDepartamentos";
 import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import "../styles/empleados/agregarEmpleado.css";
 
 function AgregarEmpleado() {
   let navegacion = useNavigate();
@@ -12,24 +12,15 @@ function AgregarEmpleado() {
   const [empleado, setEmpleado] = useState({
     codigo: "",
     nombre: "",
-    apellido: "",
     direccion: "",
     telefono: "",
     email: "",
-    cargo: "",
+    cargo_id: "",
     sueldo: "",
   });
 
-  const {
-    codigo,
-    nombre,
-    apellido,
-    direccion,
-    telefono,
-    email,
-    cargo,
-    sueldo,
-  } = empleado;
+  const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
+    empleado;
 
   const onInputChange = (e) => {
     setEmpleado({ ...empleado, [e.target.name]: e.target.value });
@@ -40,7 +31,7 @@ function AgregarEmpleado() {
   };
 
   const onSelectCargoEmpleado = (selectedCargo) => {
-    setEmpleado({ ...empleado, cargo: selectedCargo });
+    setEmpleado({ ...empleado, cargo_id: selectedCargo.id });
   };
 
   const onSubmit = async (e) => {
@@ -80,20 +71,6 @@ function AgregarEmpleado() {
             name="nombre"
             required={true}
             value={nombre}
-            onChange={(e) => onInputChange(e)}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="apellido" className="form-label">
-            Apellido Empleado
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="apellido"
-            name="apellido"
-            required={true}
-            value={apellido}
             onChange={(e) => onInputChange(e)}
           />
         </div>
@@ -149,7 +126,11 @@ function AgregarEmpleado() {
           <label htmlFor="cargo" className="form-label">
             Cargo Empleado
           </label>
-          <ListarCargos value={cargo} departamento={departamento} />
+          <ListarCargos
+            value={cargo_id}
+            departamento={departamento}
+            onSelectCargoEmpleado={onSelectCargoEmpleado}
+          />
         </div>
         <div className="mb-3">
           <label htmlFor="sueldo" className="form-label">
