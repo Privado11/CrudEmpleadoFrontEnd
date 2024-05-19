@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosAdd } from "react-icons/io";
 import { IoIosClose } from "react-icons/io";
 
 function FilterEmployee({
   onFiltersChange,
-  setShowModal,
+  setShowModalFilters,
   filters,
   setFilters,
   setFilteredSend,
@@ -12,20 +12,19 @@ function FilterEmployee({
 }) {
   const [showFilters, setShowFilters] = useState(filters ? true : false);
 
-  const menu = [
-    "codigo",
-    "nombre",
-    "email",
-    "cargos",
-    "departamentos",
-    "sueldo",
-  ];
-  const menu2 = ["=", "<>", ">", "<"];
+  const menu = ["code", "name", "email", "address", "division", "salary"];
+
+  const operadores = {
+    "[=] equals": "=",
+    "[<>] not equals": "<>",
+    "[>] greater than": ">",
+    "[<] less than": "<",
+  };
 
   const sendFilters = () => {
     if (filters.length > 0 || filteredSend.length > 0) {
       onFiltersChange(filters);
-      setShowModal(false);
+      setShowModalFilters(false);
       setFilteredSend(filters);
     }
   };
@@ -37,7 +36,7 @@ function FilterEmployee({
 
   const addFilter = () => {
     const newFilter = {
-      column: "codigo",
+      column: "code",
       operator: "=",
       value: "",
     };
@@ -49,18 +48,28 @@ function FilterEmployee({
     updatedFilters.splice(index, 1);
     setFilters(updatedFilters);
   };
+
+  const handleFilterChange = (e, index) => {
+    const updatedFilters = [...filters];
+    let newFilterColumn = e.target.value.toLowerCase();
+
+    if (newFilterColumn === "position") newFilterColumn = "cargos";
+    if (newFilterColumn === "division") newFilterColumn = "departamentos";
+
+    updatedFilters[index].column = newFilterColumn;
+    setFilters(updatedFilters);
+  };
+
   return (
     <div
       style={{
-        position: "fixed",
-        top: "0",
-        left: "0",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        borderRadius: "10px",
+        border: "0.2px solid #171717",
+        overflow: "hidden",
+        zIndex: "9999",
       }}
     >
       <div
@@ -98,9 +107,7 @@ function FilterEmployee({
                   aria-label="Default select example"
                   value={filter.column}
                   onChange={(e) => {
-                    const updatedFilters = [...filters];
-                    updatedFilters[index].column = e.target.value;
-                    setFilters(updatedFilters);
+                    handleFilterChange(e, index);
                   }}
                   style={{
                     fontSize: "12px",
@@ -118,20 +125,24 @@ function FilterEmployee({
                   value={filter.operator}
                   onChange={(e) => {
                     const updatedFilters = [...filters];
-                    updatedFilters[index].operator = e.target.value;
+                    updatedFilters[index].operator =
+                      e.target.value.toLowerCase();
                     setFilters(updatedFilters);
                   }}
                   style={{
                     fontSize: "12px",
-                    width: "40px",
+                    width: "80px",
                     height: "20px",
                     marginRight: "5px",
                   }}
                 >
-                  {menu2.map((opcion, indice) => (
-                    <option key={indice}>{opcion}</option>
+                  {Object.entries(operadores).map(([nombre, simbolo]) => (
+                    <option key={nombre} value={simbolo}>
+                      {nombre}
+                    </option>
                   ))}
                 </select>
+
                 <input
                   value={filter.value}
                   type="text"

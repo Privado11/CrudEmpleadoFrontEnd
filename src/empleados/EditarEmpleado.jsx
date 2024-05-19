@@ -8,37 +8,42 @@ import { ListarCargos } from "../cargos/ListarCargos";
 function EditarEmpleado() {
   let navegacion = useNavigate();
   const { getEmpleadoById, putEmpleado } = useRecursosHumanos();
-  const [departamento, setDepartamento] = useState();
-  const [empleado, setEmpleado] = useState();
+  const [division, setDivision] = useState(null);
+  const [empleado, setEmpleado] = useState({
+    code: "",
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+    cargo_id: "",
+    cargos: null,
+    salary: "",
+  });
   const { id } = useParams();
 
   const cargarEmpleado = async () => {
-    const empleado = await getEmpleadoById(id);
-    setEmpleado(empleado[0]);
+    try {
+      const empleado = await getEmpleadoById(id);
+      setEmpleado(empleado[0]);
+    } catch (error) {
+      console.error("Error loading employee data:", error);
+    }
   };
 
   useEffect(() => {
     cargarEmpleado();
-    onSelectDepartamentoEmpleado();
   }, []);
 
-  const {
-    codigo,
-    nombre,
-    direccion,
-    telefono,
-    email,
-    cargo_id,
-    cargos,
-    sueldo,
-  } = empleado || {};
+  useEffect(() => {
+    setDivision(empleado.cargos?.departamentos);
+  }, [empleado]);
 
   const onInputChange = (e) => {
     setEmpleado({ ...empleado, [e.target.name]: e.target.value });
   };
 
   const onSelectDepartamentoEmpleado = (selectedDepartamento) => {
-    setDepartamento(selectedDepartamento);
+    setDivision(selectedDepartamento);
   };
 
   const onSelectCargoEmpleado = (selectedCargo) => {
@@ -47,94 +52,100 @@ function EditarEmpleado() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    await putEmpleado(id, empleado);
-    navegacion("/");
+    try {
+      await putEmpleado(id, empleado);
+      navegacion("/");
+    } catch (error) {
+      console.error("Error updating employee data:", error);
+    }
   };
+
+  const { code, name, address, phone, email, cargos, salary } = empleado;
 
   return (
     <div className="container">
       <div className="container text-center" style={{ margin: "30px" }}>
-        <h3>Editar Empleado</h3>
+        <h3>Edit Employed</h3>
       </div>
-      <form onSubmit={(e) => onSubmit(e)}>
+      <form onSubmit={onSubmit}>
         <div className="mb-3">
-          <label htmlFor="codigo" className="form-label">
-            Codigo Empleado
+          <label htmlFor="code" className="form-label">
+            Code Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="codigo"
-            name="codigo"
-            required={true}
-            value={codigo}
-            onChange={(e) => onInputChange(e)}
+            id="code"
+            name="code"
+            required
+            value={code || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre Empleado
+          <label htmlFor="name" className="form-label">
+            Name Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="nombre"
-            name="nombre"
-            required={true}
-            value={nombre}
-            onChange={(e) => onInputChange(e)}
+            id="name"
+            name="name"
+            required
+            value={name || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="direccion" className="form-label">
-            Dirección Empleado
+          <label htmlFor="address" className="form-label">
+            Address Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="direccion"
-            name="direccion"
-            value={direccion}
-            onChange={(e) => onInputChange(e)}
+            id="address"
+            name="address"
+            value={address || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="telefono" className="form-label">
-            Teléfono Empleado
+          <label htmlFor="phone" className="form-label">
+            Phone Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="telefono"
-            name="telefono"
-            value={telefono}
-            onChange={(e) => onInputChange(e)}
+            id="phone"
+            name="phone"
+            value={phone || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
-            Email Empleado
+            Email Employed
           </label>
           <input
             type="email"
             className="form-control"
             id="email"
             name="email"
-            required={true}
-            value={email}
-            onChange={(e) => onInputChange(e)}
+            required
+            value={email || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="departamento" className="form-label">
-            Departamento Empleado
+          <label htmlFor="division" className="form-label">
+            Division Employed
           </label>
           <ListarDepartamentos
             value={
               cargos && cargos.departamentos
-                ? departamento
-                  ? departamento.nombre
-                  : cargos.departamentos.nombre
+                ? division
+                  ? division.name
+                  : cargos.departamentos.name
                 : ""
             }
             onSelectDepartamentoEmpleado={onSelectDepartamentoEmpleado}
@@ -142,41 +153,41 @@ function EditarEmpleado() {
         </div>
         <div className="mb-3">
           <label htmlFor="cargo" className="form-label">
-            Cargo Empleado
+            Position Employed
           </label>
           <ListarCargos
-            value={cargos ? cargos.nombre : ""}
-            departamento={
+            value={cargos ? cargos.name : ""}
+            division={
               cargos && cargos.departamentos
-                ? departamento
-                  ? departamento
-                  : cargos.departamento
+                ? division
+                  ? division
+                  : cargos.division
                 : ""
             }
             onSelectCargoEmpleado={onSelectCargoEmpleado}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="sueldo" className="form-label">
-            Sueldo Empleado
+          <label htmlFor="salary" className="form-label">
+            Salary Employed
           </label>
           <input
             type="number"
             step="any"
             className="form-control"
-            id="sueldo"
-            name="sueldo"
-            required={true}
-            value={sueldo}
-            onChange={(e) => onInputChange(e)}
+            id="salary"
+            name="salary"
+            required
+            value={salary || ""}
+            onChange={onInputChange}
           />
         </div>
         <div className="text-center">
           <button type="submit" className="btn btn-warning btn-sm me-3">
-            Guardar Cambios
+            Save
           </button>
           <a href="/" className="btn btn-danger btn-sm">
-            Cancelar
+            Cancel
           </a>
         </div>
       </form>

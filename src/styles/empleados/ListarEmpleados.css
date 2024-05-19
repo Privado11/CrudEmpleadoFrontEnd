@@ -1,0 +1,27 @@
+.container-head-table {
+  position: relative;
+  transition: color 0.3s;
+}
+
+.arrow-icon {
+  opacity: 0;
+  transition: opacity 0.3s;
+  width: 13px;
+  height: 12px;
+  margin-left: 5px;
+}
+
+.container-head-table:hover {
+  color: #989898;
+}
+.container-head-table:hover .arrow-icon {
+  opacity: 1;
+}
+
+.arrow-icon.visible {
+  opacity: 1;
+}
+
+.arrow-icon.rotated {
+  transform: rotate(180deg); /* Rota la flecha 180 grados */
+}

@@ -1,34 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CiFilter } from "react-icons/ci";
-import { GoListUnordered } from "react-icons/go";
 import { FilterEmployee } from "./FilterEmployee";
-import { SortEmployee } from "./SortEmployee";
 
 function FiltrarEmpleados({ onFiltersChange, onFilter, onSort }) {
   const [inputValue, setInputValue] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [showModalSort, setShowModalSort] = useState(false);
+  const [showModalFilters, setShowModalFilters] = useState(false);
   const [filters, setFilters] = useState([]);
   const [filteredSend, setFilteredSend] = useState(filters);
-  const [sorts, setSorts] = useState();
-  const [sortSend, setSortSend] = useState(sorts);
+  const modalRef = useRef(null);
 
   const handleChange = (e) => {
     setInputValue(e.target.value);
     onFilter(e.target.value);
   };
 
-  const toggleModal = () => {
-    setShowModal(!showModal);
+  const toggleModalFilters = () => {
+    setShowModalFilters(!showModalFilters);
+    setShowModalSort(false);
   };
 
-  const toggleModalSorf = () => {
-    setShowModalSort(!showModalSort);
+  const handleClickOutside = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setShowModalFilters(false);
+      setShowModalSort(false);
+    }
   };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
       style={{
+        position: "relative",
         display: "flex",
         marginTop: "30px",
         marginBottom: "10px",
@@ -56,7 +64,7 @@ function FiltrarEmpleados({ onFiltersChange, onFilter, onSort }) {
           }}
         />
       </div>
-      <button onClick={toggleModal} style={{ marginRight: "20px" }}>
+      <button onClick={toggleModalFilters} style={{ marginRight: "20px" }}>
         <CiFilter
           style={{ fontSize: "15px", color: "#171717", marginRight: "5px" }}
         />
@@ -66,34 +74,25 @@ function FiltrarEmpleados({ onFiltersChange, onFilter, onSort }) {
             : "Filter"}
         </span>
       </button>
-      <button onClick={toggleModalSorf} style={{ marginRight: "10px" }}>
-        <GoListUnordered
-          style={{ fontSize: "15px", color: "#171717", marginRight: "5px" }}
-        />
-        <span style={{ fontSize: "12px", color: "#171717" }}>
-          {" "}
-          {sortSend ? `Sort by ${sortSend.option}` : "Sort"}
-        </span>
-      </button>
-      {showModal && (
-        <FilterEmployee
-          onFiltersChange={onFiltersChange}
-          setShowModal={setShowModal}
-          filters={filters}
-          setFilters={setFilters}
-          filteredSend={filteredSend}
-          setFilteredSend={setFilteredSend}
-        />
-      )}
-      {showModalSort && (
-        <SortEmployee
-          onSorts={onSort}
-          setShowModalSort={setShowModalSort}
-          sorts={sorts}
-          setSorts={setSorts}
-          sortSend={sortSend}
-          setSortSend={setSortSend}
-        />
+      {showModalFilters && (
+        <div
+          ref={modalRef}
+          style={{
+            position: "absolute",
+            top: "calc(100%)",
+            right: 0,
+            zIndex: 9999,
+          }}
+        >
+          <FilterEmployee
+            onFiltersChange={onFiltersChange}
+            setShowModalFilters={setShowModalFilters}
+            filters={filters}
+            setFilters={setFilters}
+            filteredSend={filteredSend}
+            setFilteredSend={setFilteredSend}
+          />
+        </div>
       )}
     </div>
   );

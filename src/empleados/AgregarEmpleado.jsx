@@ -8,26 +8,25 @@ import "../styles/empleados/agregarEmpleado.css";
 function AgregarEmpleado() {
   let navegacion = useNavigate();
   const { saveEmpleado } = useRecursosHumanos();
-  const [departamento, setDepartamento] = useState();
+  const [division, setDivision] = useState();
   const [empleado, setEmpleado] = useState({
-    codigo: "",
-    nombre: "",
-    direccion: "",
-    telefono: "",
+    code: "",
+    name: "",
+    address: "",
+    phone: "",
     email: "",
     cargo_id: "",
-    sueldo: "",
+    salary: "",
   });
 
-  const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
-    empleado;
+  const { code, name, address, phone, email, cargo_id, salary } = empleado;
 
   const onInputChange = (e) => {
     setEmpleado({ ...empleado, [e.target.name]: e.target.value });
   };
 
   const onSelectDepartamentoEmpleado = (selectedDepartamento) => {
-    setDepartamento(selectedDepartamento);
+    setDivision(selectedDepartamento);
   };
 
   const onSelectCargoEmpleado = (selectedCargo) => {
@@ -43,66 +42,66 @@ function AgregarEmpleado() {
   return (
     <div className="container">
       <div className="container text-center" style={{ margin: "30px" }}>
-        <h3>Agregar Empleado</h3>
+        <h3>Add Employee</h3>
       </div>
       <form onSubmit={(e) => onSubmit(e)}>
         <div className="mb-3">
-          <label htmlFor="codigo" className="form-label">
-            Codigo Empleado
+          <label htmlFor="code" className="form-label">
+            Code Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="codigo"
-            name="codigo"
+            id="code"
+            name="code"
             required={true}
-            value={codigo}
+            value={code}
             onChange={(e) => onInputChange(e)}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre Empleado
+          <label htmlFor="name" className="form-label">
+            Name Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="nombre"
-            name="nombre"
+            id="name"
+            name="name"
             required={true}
-            value={nombre}
+            value={name}
             onChange={(e) => onInputChange(e)}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="direccion" className="form-label">
-            Dirección Empleado
+          <label htmlFor="address" className="form-label">
+            Address Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="direccion"
-            name="direccion"
-            value={direccion}
+            id="address"
+            name="address"
+            value={address}
             onChange={(e) => onInputChange(e)}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="telefono" className="form-label">
-            Teléfono Empleado
+          <label htmlFor="phone" className="form-label">
+            Phone Employed
           </label>
           <input
             type="text"
             className="form-control"
-            id="telefono"
-            name="telefono"
-            value={telefono}
+            id="phone"
+            name="phone"
+            value={phone}
             onChange={(e) => onInputChange(e)}
           />
         </div>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
-            Email Empleado
+            Email Employed
           </label>
           <input
             type="email"
@@ -115,8 +114,8 @@ function AgregarEmpleado() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="departamento" className="form-label">
-            Departamento Empleado
+          <label htmlFor="division" className="form-label">
+            Division Employed
           </label>
           <ListarDepartamentos
             onSelectDepartamentoEmpleado={onSelectDepartamentoEmpleado}
@@ -124,35 +123,35 @@ function AgregarEmpleado() {
         </div>
         <div className="mb-3">
           <label htmlFor="cargo" className="form-label">
-            Cargo Empleado
+            Position Employed
           </label>
           <ListarCargos
             value={cargo_id}
-            departamento={departamento}
+            division={division}
             onSelectCargoEmpleado={onSelectCargoEmpleado}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="sueldo" className="form-label">
-            Sueldo Empleado
+          <label htmlFor="salary" className="form-label">
+            Salary Employed
           </label>
           <input
             type="number"
             step="any"
             className="form-control"
-            id="sueldo"
-            name="sueldo"
+            id="salary"
+            name="salary"
             required={true}
-            value={sueldo}
+            value={salary}
             onChange={(e) => onInputChange(e)}
           />
         </div>
         <div className="text-center">
           <button type="submit" className="btn btn-warning btn-sm me-3">
-            Agregar Empleado
+            Save Employee
           </button>
           <a href="/" className="btn btn-danger btn-sm">
-            Cancelar
+            Cancel
           </a>
         </div>
       </form>

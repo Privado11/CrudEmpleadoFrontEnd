@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useRecursosHumanos } from "../context/RecursosHumanosContext";
 
-function ListarCargos({ value, departamento, onSelectCargoEmpleado }) {
+function ListarCargos({ value, division, onSelectCargoEmpleado }) {
   const { cargos } = useRecursosHumanos();
   const [cargosFiltrados, setCargosFiltrados] = useState([]);
 
   const onSelectCargo = (event) => {
     const SelectCargoName = event.target.value;
-    const cargoE = cargos.find((cargo) => cargo.nombre === SelectCargoName);
+    const cargoE = cargos.find((cargo) => cargo.name === SelectCargoName);
     onSelectCargoEmpleado(cargoE);
   };
 
   useEffect(() => {
-    if (cargos && departamento) {
+    if (cargos && division) {
       setCargosFiltrados(
-        cargos.filter((cargo) => cargo.departamento_id === departamento.id)
+        cargos.filter((cargo) => cargo.departamento_id === division.id)
       );
     } else {
       setCargosFiltrados(cargos);
     }
-  }, [departamento]);
+  }, [division]);
 
   return (
     <select
@@ -31,9 +31,9 @@ function ListarCargos({ value, departamento, onSelectCargoEmpleado }) {
       <option value="">Cargo</option>
       {cargosFiltrados
         .slice()
-        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map((cargo, indice) => (
-          <option key={indice}>{cargo.nombre}</option>
+          <option key={indice}>{cargo.name}</option>
         ))}
     </select>
   );

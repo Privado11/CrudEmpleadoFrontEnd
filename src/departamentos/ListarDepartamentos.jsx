@@ -7,7 +7,7 @@ function ListarDepartamentos({ value, onSelectDepartamentoEmpleado }) {
   const onSelectDepartamento = (event) => {
     const SelectDepartamentoName = event.target.value;
     const departamentoE = departamentos.find(
-      (departamento) => departamento.nombre === SelectDepartamentoName
+      (departamento) => departamento.name === SelectDepartamentoName
     );
     onSelectDepartamentoEmpleado(departamentoE);
   };
@@ -22,9 +22,9 @@ function ListarDepartamentos({ value, onSelectDepartamentoEmpleado }) {
       <option value="">Departamento</option>
       {departamentos
         .slice()
-        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map((departamento, indice) => (
-          <option key={indice}>{departamento.nombre}</option>
+          <option key={indice}>{departamento.name}</option>
         ))}
     </select>
   );

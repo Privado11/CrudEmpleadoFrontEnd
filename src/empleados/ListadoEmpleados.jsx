@@ -4,13 +4,17 @@ import { Link } from "react-router-dom";
 import { MdDeleteForever, MdEditDocument } from "react-icons/md";
 import { useRecursosHumanos } from "../context/RecursosHumanosContext";
 import { FiltrarEmpleados } from "./FiltrarEmpleados";
+import { FaArrowDownLong } from "react-icons/fa6";
+import "../styles/empleados/ListarEmpleados.css";
 
 function ListadoEmpleados() {
   const { empleados, deleteEmpleado, getEmpleados } = useRecursosHumanos();
-  const [listEmpleados, setListEmpleados] = useState(empleados);
+  const [listEmpleados, setListEmpleados] = useState([]);
   const [filters, setFilters] = useState([]);
-  const [sorts, setSorts] = useState();
-  const [filter, setFilter] = useState([]);
+  const [sorts, setSorts] = useState(null);
+  const [ascending, setAscending] = useState(false);
+  const [headerSeleted, setHeaderSelected] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const operadores = {
     "=": (campo, valorFiltro) => campo === valorFiltro,
@@ -24,101 +28,94 @@ function ListadoEmpleados() {
     getEmpleados();
   };
 
-  const filtrarEmpleados = async (filtro) => {
-    filtrarEmpleadosCampos(filters);
-
-    if (filtro && filtro.length > 0) {
-      const list = filters.length > 0 || sorts ? listEmpleados : empleados;
-      const filtrados = list.filter((empleado) =>
-        empleado.nombre.toLowerCase().includes(filtro.toLowerCase())
-      );
-      setListEmpleados(filtrados);
-    } else {
-      const list = sorts ? listEmpleados : empleados;
-      setListEmpleados(list);
-    }
-  };
-
-  const filtrarEmpleadosCampos = (newFilters) => {
-    setFilters(newFilters);
-    if (newFilters.length === 0) {
-      if (sorts) {
-        onSort(sorts, empleados);
-      } else {
-        setListEmpleados(empleados);
-      }
-      return;
-    }
-    const filtrados = empleados.filter((empleado) => {
-      return newFilters.every((filter) => {
+  const applyFilters = (empleadosList) => {
+    return empleadosList.filter((empleado) => {
+      return filters.every((filter) => {
         const campo =
           filter.column === "departamentos"
-            ? empleado.cargos.departamentos.nombre
-            : empleado[filter.column]?.nombre !== undefined
-            ? empleado[filter.column].nombre
+            ? empleado.cargos.departamentos.name
+            : empleado[filter.column]?.name !== undefined
+            ? empleado[filter.column].name
             : empleado[filter.column];
         const operador = filter.operator;
         const valorFiltro = filter.value.toLowerCase();
 
-        if (operador in operadores) {
-          return operadores[operador](String(campo).toLowerCase(), valorFiltro);
-        } else {
-          return true;
-        }
+        return operadores[operador](String(campo).toLowerCase(), valorFiltro);
       });
     });
-    if (sorts) {
-      onSort(sorts, filtrados);
-    } else {
-      setListEmpleados(filtrados);
-    }
   };
 
-  const option = (x, sort) => {
-    const d =
-      sort.option === "departamentos"
-        ? x.cargos[sort.option].nombre
-        : x[sort.option]?.nombre !== undefined
-        ? x[sort.option].nombre
-        : x[sort.option];
-
-    return d;
+  const applySearch = (empleadosList) => {
+    return empleadosList.filter((empleado) =>
+      empleado.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   };
-  const onSort = (sort, filtrados) => {
-    setSorts(sort);
-    if (sort) {
-      const empleadosToSort = filtrados ? filtrados : listEmpleados;
-      const ordenados =
-        sort.option === "sueldo"
-          ? empleadosToSort.slice().sort((a, b) => {
-              return sort.ascending
-                ? a[sort.option] - b[sort.option]
-                : b[sort.option] - a[sort.option];
-            })
-          : empleadosToSort.slice().sort((a, b) => {
-              const aValue = option(a, sort);
-              const bValue = option(b, sort);
-              return sort.ascending
-                ? aValue.localeCompare(bValue)
-                : bValue.localeCompare(aValue);
-            });
-      setListEmpleados(ordenados);
-    } else {
-      setListEmpleados(empleados);
-    }
+
+  const applySort = (empleadosList) => {
+    if (!sorts) return empleadosList;
+
+    const { option, ascending } = sorts;
+
+    return empleadosList.slice().sort((a, b) => {
+      const aValue =
+        option === "departamentos"
+          ? a.cargos.departamentos.name
+          : a[option]?.name !== undefined
+          ? a[option].name
+          : a[option];
+      const bValue =
+        option === "departamentos"
+          ? b.cargos.departamentos.name
+          : b[option]?.name !== undefined
+          ? b[option].name
+          : b[option];
+
+      return ascending
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    });
+  };
+
+  const updateList = () => {
+    let updatedList = empleados;
+    updatedList = applyFilters(updatedList);
+    updatedList = applySearch(updatedList);
+    updatedList = applySort(updatedList);
+    setListEmpleados(updatedList);
   };
 
   useEffect(() => {
-    filtrarEmpleadosCampos(filters);
-  }, [sorts === undefined]);
-
-  useEffect(() => {
-    setListEmpleados(empleados);
-  }, [empleados]);
+    updateList();
+  }, [empleados, filters, sorts, searchTerm]);
 
   useEffect(() => {
     getEmpleados();
   }, []);
+
+  const handleSort = (option) => {
+    setHeaderSelected(option);
+    let newSortOption = option.toLowerCase();
+
+    if (newSortOption === "position") newSortOption = "cargos";
+    if (newSortOption === "division") newSortOption = "departamentos";
+
+    const isSameOption = sorts?.option === newSortOption;
+    const newAscending = isSameOption ? !ascending : true;
+
+    setSorts({ option: newSortOption, ascending: newAscending });
+    setAscending(newAscending);
+  };
+
+  const headTable = [
+    { name: "Code" },
+    { name: "Name" },
+    { name: "Address" },
+    { name: "Phone" },
+    { name: "Email" },
+    { name: "Position" },
+    { name: "Division" },
+    { name: "Salary" },
+  ];
 
   return (
     <div style={{ margin: "30px", marginLeft: "55px", padding: "5px" }}>
@@ -126,37 +123,53 @@ function ListadoEmpleados() {
         <h3 style={{ color: "#171717" }}>Sistema de Recursos Humanos</h3>
       </div>
       <FiltrarEmpleados
-        onFiltersChange={filtrarEmpleadosCampos}
-        onFilter={filtrarEmpleados}
-        onSort={onSort}
+        onFiltersChange={setFilters}
+        onFilter={(filtro) => setSearchTerm(filtro)}
       />
       <table className="table table-striped table-hover align-middle table-bordered">
         <thead className="table-dark">
           <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Teléfono</th>
-            <th scope="col">Email</th>
-            <th scope="col">Cargo</th>
-            <th scope="col">Departamento</th>
-            <th scope="col">Sueldo</th>
-            <th scope="col">Acciones</th>
+            {headTable.map((head, index) => (
+              <th key={index} scope="col">
+                <div
+                  className="container-head-table"
+                  onClick={() => handleSort(head.name)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  {head.name}
+                  <FaArrowDownLong
+                    className={`arrow-icon ${
+                      headerSeleted === head.name ? "visible" : ""
+                    } ${
+                      headerSeleted === head.name && !sorts.ascending
+                        ? "rotated"
+                        : ""
+                    }`}
+                  />
+                </div>
+              </th>
+            ))}
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {listEmpleados.map((empleado, indice) => (
             <tr key={indice}>
-              <th scope="row">{empleado.codigo}</th>
-              <td>{empleado.nombre}</td>
-              <td>{empleado.direccion}</td>
-              <td>{empleado.telefono}</td>
+              <th scope="row">{empleado.code}</th>
+              <td>{empleado.name}</td>
+              <td>{empleado.address}</td>
+              <td>{empleado.phone}</td>
               <td>{empleado.email}</td>
-              <td>{empleado.cargos.nombre}</td>
-              <td>{empleado.cargos.departamentos.nombre}</td>
+              <td>{empleado.cargos.name}</td>
+              <td>{empleado.cargos.departamentos.name}</td>
               <td>
                 <NumericFormat
-                  value={empleado.sueldo}
+                  value={empleado.salary}
                   displayType={"text"}
                   thousandSeparator={true}
                   prefix={"$"}

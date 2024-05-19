@@ -58,18 +58,17 @@ function apiRecursosHumanos() {
 
   const postData = async (endPoint, data) => {
     try {
-      const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
-        data;
+      const { code, name, address, phone, email, cargo_id, salary } = data;
 
       await supabase.from(endPoint).insert([
         {
-          codigo: codigo,
-          nombre: nombre,
-          direccion: direccion,
-          telefono: telefono,
+          code: code,
+          name: name,
+          address: address,
+          phone: phone,
           email: email,
           cargo_id: cargo_id,
-          sueldo: sueldo,
+          salary: salary,
         },
       ]);
     } catch (error) {
@@ -79,20 +78,19 @@ function apiRecursosHumanos() {
 
   const putData = async (endPoint, id, data) => {
     try {
-      const { codigo, nombre, direccion, telefono, email, cargo_id, sueldo } =
-        data;
+      const { code, name, address, phone, email, cargo_id, salary } = data;
 
       await supabase
         .from(endPoint)
         .update([
           {
-            codigo: codigo,
-            nombre: nombre,
-            direccion: direccion,
-            telefono: telefono,
+            code: code,
+            name: name,
+            address: address,
+            phone: phone,
             email: email,
             cargo_id: cargo_id,
-            sueldo: sueldo,
+            salary: salary,
           },
         ])
         .eq("id", id)
@@ -118,7 +116,7 @@ function apiRecursosHumanos() {
       const datosObt = await supabase
         .from(`${endPoint}`)
         .select()
-        .like("nombre", `%${filter}%`);
+        .like("name", `%${filter}%`);
       setters(datosObt.data);
     } catch (error) {
       console.error(error);

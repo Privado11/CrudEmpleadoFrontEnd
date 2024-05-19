@@ -4,9 +4,8 @@ import { AgregarEmpleado } from "./empleados/AgregarEmpleado";
 import { EditarEmpleado } from "./empleados/EditarEmpleado";
 import { RecursosHumanosProvider } from "./context/RecursosHumanosContext";
 import { Sidebar } from "./plantilla/Sidebar";
-import { useState } from "react";
-import { IoMdMenu } from "react-icons/io";
 import ".//style.css";
+import EnhancedTable from "./empleados/EnhancedTable";
 
 function App() {
   return (
@@ -19,6 +18,7 @@ function App() {
           <Route path="/editar/:id" element={<EditarEmpleado />} />
         </Routes>
       </BrowserRouter>
+      <EnhancedTable />
     </RecursosHumanosProvider>
   );
 }
