@@ -15,6 +15,40 @@ function apiRecursosHumanos() {
     getDepartamentos();
   }, []);
 
+  const auth = async (email, password, setSession) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+      setSession(session);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const authState = (setSession) => {
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return { data };
+  };
+
+  const updateUser = async (email, password) => {
+    const { data } = await supabase.auth.updateUser({
+      email: email,
+      password: password,
+    });
+
+    return data;
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   const getDataE = async (endPoint, setters) => {
     try {
       const datosObt = await supabase.from(`${endPoint}`).select(`
@@ -58,19 +92,7 @@ function apiRecursosHumanos() {
 
   const postData = async (endPoint, data) => {
     try {
-      const { code, name, address, phone, email, cargo_id, salary } = data;
-
-      await supabase.from(endPoint).insert([
-        {
-          code: code,
-          name: name,
-          address: address,
-          phone: phone,
-          email: email,
-          cargo_id: cargo_id,
-          salary: salary,
-        },
-      ]);
+      await supabase.from(endPoint).insert([data]);
     } catch (error) {
       console.error("Error al insertar datos:", error.message);
     }
@@ -147,6 +169,10 @@ function apiRecursosHumanos() {
   const deleteDepartamento = (id) => deleteData("departamentos", id);
 
   return {
+    auth,
+    authState,
+    updateUser,
+    signOut,
     empleados,
     getEmpleados,
     filterEmpleado,

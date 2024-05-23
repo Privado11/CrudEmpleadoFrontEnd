@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
 
 function ListarCargos({ value, division, onSelectCargoEmpleado }) {
   const { cargos } = useRecursosHumanos();

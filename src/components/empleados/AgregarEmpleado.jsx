@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListarCargos } from "../cargos/ListarCargos";
 import { ListarDepartamentos } from "../departamentos/ListarDepartamentos";
-import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
 import "../styles/empleados/agregarEmpleado.css";
 
 function AgregarEmpleado() {

@@ -27,6 +27,7 @@ button {
   transition: width 0.4s;
   border: 0 solid #dfdfdf;
   border-right-width: 1px;
+  z-index: 999;
 }
 
 .sidebar-header {
@@ -41,6 +42,10 @@ button {
   width: 250px;
 }
 
+.sidebar .sidebar-header button {
+  width: 50px;
+}
+
 .sidebar:hover button span:nth-child(2),
 .sidebar:hover button span:nth-child(3) {
   display: inline;
@@ -48,9 +53,6 @@ button {
 
 .sidebar:hover button {
   width: 100%;
-}
-.sidebar .sidebar-header button {
-  width: 50px;
 }
 
 .sidebar-logo {
@@ -75,6 +77,11 @@ button {
   margin-bottom: 10px;
 }
 
+.sidebar button.disabled {
+  color: #b0b0b0;
+  cursor: not-allowed;
+}
+
 .sidebar button span:nth-child(2) {
   display: none;
   flex: 1 1 auto;
@@ -84,7 +91,7 @@ button {
   display: none;
 }
 
-.sidebar button:is(.active, :hover) {
+.sidebar button:is(.active) {
   background: #d9d9d9;
   color: #171717;
 }
@@ -97,8 +104,9 @@ button {
   rotate: -180deg;
 }
 
-.sidebar button:not(.active):hover {
-  background: #eeeeee;
+.sidebar button:not(.disabled):hover {
+  background: #d9d9d9;
+  color: #171717;
 }
 
 .sub-nav button.active::before {

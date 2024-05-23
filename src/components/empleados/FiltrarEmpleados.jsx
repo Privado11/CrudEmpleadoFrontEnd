@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CiFilter } from "react-icons/ci";
 import { FilterEmployee } from "./FilterEmployee";
 
-function FiltrarEmpleados({ onFiltersChange, onFilter, onSort }) {
+function FiltrarEmpleados({ onFiltersChange, onFilter }) {
   const [inputValue, setInputValue] = useState("");
   const [showModalFilters, setShowModalFilters] = useState(false);
   const [filters, setFilters] = useState([]);

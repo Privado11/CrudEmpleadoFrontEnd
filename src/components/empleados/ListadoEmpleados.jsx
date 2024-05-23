@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { Link } from "react-router-dom";
 import { MdDeleteForever, MdEditDocument } from "react-icons/md";
-import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
 import { FiltrarEmpleados } from "./FiltrarEmpleados";
 import { FaArrowDownLong } from "react-icons/fa6";
+import TablePagination from "@mui/material/TablePagination";
 import "../styles/empleados/ListarEmpleados.css";
 
 function ListadoEmpleados() {
@@ -15,6 +16,32 @@ function ListadoEmpleados() {
   const [ascending, setAscending] = useState(false);
   const [headerSeleted, setHeaderSelected] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPageOptions, setRowsPerPageOptions] = useState([]);
+
+  useEffect(() => {
+    const generateRowsPerPageOptions = () => {
+      const options = [];
+      let i = 10;
+      options.push(i);
+      while (i <= empleados.length) {
+        i += 5;
+        options.push(i);
+      }
+      return options;
+    };
+    setRowsPerPageOptions(generateRowsPerPageOptions());
+  }, [empleados]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const operadores = {
     "=": (campo, valorFiltro) => campo === valorFiltro,
@@ -77,16 +104,25 @@ function ListadoEmpleados() {
   };
 
   const updateList = () => {
-    let updatedList = empleados;
+    let updatedList = empleados
+      .slice()
+      .sort((a, b) => a.code.localeCompare(b.code));
+
     updatedList = applyFilters(updatedList);
     updatedList = applySearch(updatedList);
-    updatedList = applySort(updatedList);
-    setListEmpleados(updatedList);
+
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    let displayedList = updatedList.slice(startIndex, endIndex);
+
+    displayedList = applySort(displayedList);
+
+    setListEmpleados(displayedList);
   };
 
   useEffect(() => {
     updateList();
-  }, [empleados, filters, sorts, searchTerm]);
+  }, [empleados, filters, sorts, searchTerm, page, rowsPerPage]);
 
   useEffect(() => {
     getEmpleados();
@@ -179,7 +215,7 @@ function ListadoEmpleados() {
               </td>
               <td className="text-center">
                 <div>
-                  <Link to={`/editar/${empleado.id}`} title="Editar">
+                  <Link to={`/edit/employee/${empleado.id}`} title="Editar">
                     <MdEditDocument
                       style={{
                         fontSize: "1.5rem",
@@ -203,6 +239,19 @@ function ListadoEmpleados() {
           ))}
         </tbody>
       </table>
+      <TablePagination
+        component="div"
+        count={
+          filters.length > 0 || searchTerm
+            ? listEmpleados.length
+            : empleados.length
+        }
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={rowsPerPageOptions}
+      />
     </div>
   );
 }

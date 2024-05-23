@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
 import { ListarDepartamentos } from "../departamentos/ListarDepartamentos";
 import { ListarCargos } from "../cargos/ListarCargos";
 

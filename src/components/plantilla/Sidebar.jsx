@@ -1,15 +1,11 @@
-import React, { FC, useRef, useState } from "react";
-import { MdAddBox, MdAccountCircle, MdExpandMore } from "react-icons/md";
-import {
-  IoIosAddCircleOutline,
-  IoMdHome,
-  IoMdSettings,
-  IoMdClose,
-} from "react-icons/io";
+import React, { useRef, useState } from "react";
+import { MdExpandMore } from "react-icons/md";
+import { IoIosAddCircleOutline, IoMdClose } from "react-icons/io";
 import { IoHomeOutline, IoSettingsOutline } from "react-icons/io5";
 import { VscAccount } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
-import ".//style.css";
+import "./style.css";
+import { apiRecursosHumanos } from "../../services/apiRecursosHumanos";
 
 const menuItems = [
   {
@@ -36,11 +32,13 @@ const menuItems = [
       { name: "Display" },
     ],
   },
-
   {
     name: "Account",
     icon: <VscAccount />,
-    items: [{ name: "Edit" }, { name: "Logout" }],
+    items: [
+      { name: "Edit", linkTo: "edit/account" },
+      { name: "Logout", linkTo: "/login" },
+    ],
   },
 ];
 
@@ -48,35 +46,55 @@ const Icon = ({ icon }) => (
   <span className="material-symbols-outlined">{icon}</span>
 );
 
-const NavHeader = ({ toggleSidebar }) => (
+const NavHeader = ({ user }) => (
   <header className="sidebar-header">
-    <button type="button" onClick={toggleSidebar}>
+    <button type="button">
       <Icon icon={<IoMdClose />} />
+      <span>{user}</span>
     </button>
-    <span></span>
   </header>
 );
 
-const NavButton = ({ onClick, name, icon, isActive, hasSubNav, linkTo }) => (
-  <button
-    type="button"
-    onClick={() => {
+const NavButton = ({
+  onClick,
+  name,
+  icon,
+  isActive,
+  hasSubNav,
+  linkTo,
+  user,
+}) => {
+  const handleClick = () => {
+    if (user !== "user" || name !== "Create") {
       const argument = linkTo ? linkTo : name;
       onClick && onClick(argument);
-    }}
-    className={isActive ? "active" : ""}
-  >
-    {icon && <Icon icon={icon} />}
-    <span>{name}</span>
-    {hasSubNav && <Icon icon={<MdExpandMore />} />}
-  </button>
-);
+    }
+  };
 
-const SubMenu = ({ item, activeItem, handleClickLink }) => {
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={
+        user !== "admin" && name === "Create"
+          ? "disabled"
+          : isActive
+          ? "active"
+          : ""
+      }
+    >
+      {icon && <Icon icon={icon} />}
+      <span>{name}</span>
+      {hasSubNav && <Icon icon={<MdExpandMore />} />}
+    </button>
+  );
+};
+
+const SubMenu = ({ item, activeItem, handleClickLink, session }) => {
   const navRef = useRef(null);
 
   const isSubNavOpen = (item, items) =>
-    items.some((i) => i === activeItem) || item === activeItem;
+    items.some((i) => i.name === activeItem) || item === activeItem;
 
   return (
     <div
@@ -96,6 +114,7 @@ const SubMenu = ({ item, activeItem, handleClickLink }) => {
             name={subItem.name}
             isActive={activeItem === subItem.name}
             linkTo={subItem.linkTo}
+            user={session.user.app_metadata.userrole}
             onClick={handleClickLink}
           />
         ))}
@@ -104,22 +123,32 @@ const SubMenu = ({ item, activeItem, handleClickLink }) => {
   );
 };
 
-function Sidebar({ toggleSidebar }) {
-  const [activeItem, setActiveItem] = useState("");
+function Sidebar({ session, setSession }) {
   const navigate = useNavigate();
+  const { signOut } = apiRecursosHumanos();
+  const [activeItem, setActiveItem] = useState("");
 
   const handleClick = (item) => {
     setActiveItem(item !== activeItem ? item : "");
   };
 
-  const handleClickLink = (link) => {
+  const handleClickLink = async (link) => {
+    if (link === "/login") {
+      try {
+        await signOut();
+        setSession(null);
+      } catch (error) {
+        console.error("Error during logout:", error);
+        return;
+      }
+    }
+
     navigate(link);
-    //toggleSidebar();
   };
 
   return (
     <aside className="sidebar">
-      <NavHeader toggleSidebar={toggleSidebar} />
+      <NavHeader user={session.user.app_metadata.userrole} />
       {menuItems.map((item, index) => (
         <div key={index}>
           {!item.items && (
@@ -130,18 +159,21 @@ function Sidebar({ toggleSidebar }) {
               isActive={activeItem === item.name}
               hasSubNav={!!item.items}
               linkTo={item.linkTo}
+              user={session.user.app_metadata.userrole}
             />
           )}
           {item.items && (
             <>
               <NavButton
-                onClick={handleClick}
+                onClick={() => handleClick(item.name)}
                 name={item.name}
                 icon={item.icon}
                 isActive={activeItem === item.name}
                 hasSubNav={!!item.items}
+                user={session.user.app_metadata.userrole}
               />
               <SubMenu
+                session={session}
                 activeItem={activeItem}
                 handleClickLink={handleClickLink}
                 item={item}

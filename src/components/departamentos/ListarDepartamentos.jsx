@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useRecursosHumanos } from "../context/RecursosHumanosContext";
+import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
 
 function ListarDepartamentos({ value, onSelectDepartamentoEmpleado }) {
   const { departamentos } = useRecursosHumanos();
