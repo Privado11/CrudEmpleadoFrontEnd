@@ -97,9 +97,13 @@ function ListadoEmpleados() {
           ? b[option].name
           : b[option];
 
-      return ascending
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      if (option === "salary") {
+        return ascending ? aValue - bValue : bValue - aValue;
+      } else {
+        return ascending
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
     });
   };
 

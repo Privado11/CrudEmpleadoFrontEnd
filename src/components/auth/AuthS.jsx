@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import { useRecursosHumanos } from "../../context/RecursosHumanosContext";
+import Box from "@mui/material/Box";
 
 function AuthS({ session, setSession }) {
   const { auth } = useRecursosHumanos();
@@ -36,6 +37,31 @@ function AuthS({ session, setSession }) {
 
   return (
     <div style={{ margin: "30px", marginLeft: "55px", padding: "5px" }}>
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          height={150}
+          width={400}
+          my={4}
+          display="flex"
+          alignItems="center"
+          gap={4}
+          p={2}
+          sx={{ border: "2px solid grey" }}
+        >
+          "There are two email addresses available, one designated for
+          administrators and one for regular users. Both accounts share the same
+          password, which is '123456'. The administrator account has the ability
+          to create employees, as well as manage positions and departments"
+        </Box>
+      </div>
+
       <form className="mb-3 row" onSubmit={initializeAuth}>
         <div className="mb-3 row">
           <label className="col-sm-2 col-form-label">Email</label>

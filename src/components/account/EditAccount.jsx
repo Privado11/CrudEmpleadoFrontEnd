@@ -20,8 +20,10 @@ function EditAccount({ session }) {
 
   const handleSaveEmail = () => {
     if (email1 === email2) {
-      updateUser(email2, session.user.password); // Llama a la función para actualizar el correo electrónico
+      updateUser(email2, session.user.password);
       setEditingEmail(false);
+      setEmail1(session.user.email);
+      setEmail2("");
     } else {
       alert("Los emails no coinciden");
     }
@@ -29,15 +31,16 @@ function EditAccount({ session }) {
 
   const handleSavePassword = () => {
     if (password1 === password2) {
-      updateUser(session.user.email, password2); // Llama a la función para actualizar la contraseña
+      updateUser(session.user.email, password2);
       setEditingPassword(false);
+      setPassword2("");
     } else {
       alert("Las contraseñas no coinciden");
     }
   };
 
   useEffect(() => {
-    console.log("email", session.user.email, "password", password2);
+    console.log("email", email2, "password", password2);
   }, [email2, password2]);
 
   return (
